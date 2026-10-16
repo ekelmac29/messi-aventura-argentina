@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#081c34">
+  <meta name="description" content="Juego educativo de plataformas: Messi en una aventura por calles argentinas. Demo gratuita, jugable desde el navegador.">
+  <title>Messi: una aventura argentina | Demo educativa</title>
+  <style>
+    :root{color-scheme:dark;--navy:#07192b;--card:#0c2940;--celeste:#69d6ff;--yellow:#ffe071;--white:#f3f9ff}
+    *{box-sizing:border-box}
+    html,body{margin:0;min-height:100%;background:var(--navy);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--white)}
+    body{background:radial-gradient(ellipse 65% 40% at 50% 0%,#16557a 0%,transparent 74%),linear-gradient(150deg,#07192b 0%,#0b2840 65%,#07192b 100%);overflow-x:hidden}
+    button{font:inherit;touch-action:manipulation}
+    .page{width:min(1160px,calc(100% - 32px));margin:0 auto;padding:24px 0 36px}
+    .site-header{display:flex;justify-content:space-between;align-items:center;gap:14px;margin-bottom:28px}
+    .brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:.045em;font-size:15px}
+    .brand-icon{display:grid;place-items:center;width:43px;height:43px;border:1px solid #78d4ff66;border-radius:14px;background:#69d6ff16;font-size:24px}
+    .version{font-size:11px;letter-spacing:.13em;font-weight:900;background:#ffffff12;border:1px solid #ffffff24;padding:9px 12px;border-radius:50px;color:#c5e2f5;text-align:center}
+    .hero-copy{margin-bottom:25px}
+    .eyebrow{margin:0 0 12px;text-transform:uppercase;color:#83dcff;letter-spacing:.2em;font-size:11px;font-weight:900}
+    h1{font-weight:1000;line-height:1.03;letter-spacing:-.055em;font-size:clamp(35px,5.5vw,64px);margin:0 0 13px}
+    h1 span{color:#ffe17d}
+    .sub{color:#c4d7e7;font-size:clamp(14px,1.55vw,17px);line-height:1.65;margin:0;max-width:720px}
+    .game-frame{background:#0b2337;border:1px solid #ffffff2a;border-radius:23px;overflow:hidden;box-shadow:0 40px 95px #010a1880,0 0 0 5px #ffffff05}
+    .game-toolbar{height:53px;background:linear-gradient(90deg,#0b263c,#092033);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 17px;border-bottom:1px solid #ffffff16}
+    .led-label{display:flex;align-items:center;gap:9px;font-size:11px;letter-spacing:.12em;font-weight:800;color:#c2dae9;text-transform:uppercase}
+    .led{height:8px;width:8px;border-radius:50%;background:#75eb9e;box-shadow:0 0 14px #6cff9c}
+    .toolbar-actions{display:flex;align-items:center;gap:7px}
+    .icon-button{border:1px solid #ffffff30;background:#ffffff10;color:white;border-radius:9px;min-width:41px;height:33px;padding:0 10px;font-size:16px;cursor:pointer;transition:background .15s}
+    .icon-button:hover{background:#ffffff24}.icon-button:focus-visible,.primary:focus-visible,.touch-btn:focus-visible{outline:3px solid #ffe17d;outline-offset:2px}
+    .canvas-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#86d8ff}
+    canvas{display:block;width:100%;height:100%;object-fit:fill;image-rendering:auto}
+    .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:12px;background:linear-gradient(90deg,#021324d9 0%,#051d33b5 75%,#0416265c 100%);z-index:3}
+    .overlay[hidden]{display:none}
+    .overlay-panel{max-width:min(530px,100%);text-align:center;padding:22px 24px;animation:fadeup .28s ease-out}
+    .overlay-kicker{font-weight:900;color:#a9eaff;text-transform:uppercase;letter-spacing:.24em;font-size:12px;margin-bottom:13px}
+    .overlay-title{font-size:clamp(31px,5vw,62px);font-weight:1000;line-height:.99;letter-spacing:-.045em;text-shadow:0 3px 15px #071629;margin:0 0 15px}
+    .overlay-title em{color:#ffe17d;font-style:normal}
+    .overlay-description{font-weight:550;color:#f4f8ff;font-size:clamp(13px,1.5vw,17px);line-height:1.6;margin:0 auto 24px;max-width:430px}
+    .primary{background:linear-gradient(180deg,#ffec9e,#ffcb5e);box-shadow:0 5px 0 #bd8d2a,0 12px 27px #0014247f;color:#10283c;border:0;border-radius:13px;cursor:pointer;padding:14px 27px;font-size:16px;font-weight:1000;letter-spacing:.03em;min-width:200px;transition:transform .14s}
+    .primary:hover{transform:translateY(-2px)}.primary:active{transform:translateY(3px);box-shadow:0 2px 0 #bd8d2a}
+    .overlay-tip{font-size:12px;color:#b3d2e5;margin-top:18px}
+    .touch-controls{display:none;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px 15px;border-top:1px solid #ffffff20;background:#0c2b43;user-select:none;-webkit-user-select:none}
+    .touch-group{display:flex;gap:11px}
+    .touch-btn{display:grid;place-items:center;min-width:68px;min-height:58px;border:1px solid #86dfff50;background:linear-gradient(160deg,#3c6580,#173d5c);box-shadow:0 5px 0 #071c31;color:white;font-weight:1000;font-size:23px;border-radius:12px;cursor:pointer;touch-action:none}
+    .touch-btn.active,.touch-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #071c31;background:#468bad}
+    .touch-btn.jump{background:linear-gradient(180deg,#ffe89b,#ffce5c);color:#233345;min-width:112px;box-shadow:0 5px 0 #9e7429;font-size:14px}
+    .touch-btn.jump.active{background:#ffcf4c}
+    .hint-strip{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:15px 19px;background:#092136;border-top:1px solid #ffffff18;color:#a8c7da;font-size:12px;line-height:1.5}
+    .keys{color:#f4fbff;font-weight:800}
+    .infos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px;margin-top:21px}
+    .info{border:1px solid #ffffff1a;border-radius:16px;background:#ffffff08;padding:19px 20px;min-height:132px}
+    .info .icon{font-size:27px;margin-bottom:9px}.info strong{display:block;margin-bottom:6px;font-size:15px}.info p{font-size:13px;margin:0;line-height:1.6;color:#b6cad9}
+    .footer{font-size:12px;text-align:center;line-height:1.8;color:#91b0c6;max-width:850px;margin:29px auto 0}
+    @keyframes fadeup{from{opacity:0;transform:translateY(11px)}to{opacity:1;transform:translateY(0)}}
+    @media(max-width:700px){.page{width:calc(100% - 18px);padding-top:13px}.site-header{margin-bottom:21px}.version{font-size:9px;letter-spacing:.04em;padding:7px 9px}.hero-copy{margin-bottom:16px}.canvas-wrap{aspect-ratio:700/540}.game-frame{border-radius:16px}.game-toolbar{height:45px;padding:0 10px}.led-label{font-size:9px;letter-spacing:.03em}.touch-controls{display:flex}.hint-strip{display:none}.infos{grid-template-columns:1fr;gap:9px}.info{min-height:0;padding:14px 16px}.info .icon{float:left;margin:0 13px 7px 0}.info strong{margin-bottom:3px}.footer{margin-top:20px}.overlay-panel{padding:12px}.overlay-description{margin-bottom:13px}.overlay-tip{margin-top:12px}.primary{padding:11px 15px;min-width:170px;font-size:14px}}
+    @media(max-width:380px){.touch-btn{min-width:58px;min-height:53px}.touch-btn.jump{min-width:94px}.touch-controls{gap:6px}}
+    @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="site-header">
+      <div class="brand"><div class="brand-icon" aria-hidden="true">⚽</div><span>CANCHA DE IDEAS</span></div>
+      <div class="version">PROTOTIPO EDUCATIVO · V1.0</div>
+    </header>
+    <section class="hero-copy">
+      <p class="eyebrow">Un minijuego para aprender creando</p>
+      <h1>Messi: <span>aventura argentina</span></h1>
+      <p class="sub">Saltá entre veredas, juntá alfajores, conseguí la Copa del Mundo y superá al Chiqui, un rival caricaturesco, para llegar al arco final. ¡Un solo nivel, muchas ideas para tus alumnos!</p>
+    </section>
+    <div class="game-frame" id="gameFrame">
+      <div class="game-toolbar">
+        <div class="led-label"><span class="led"></span><span>ARGENTINA · NIVEL 01 / 01</span></div>
+        <div class="toolbar-actions">
+          <button class="icon-button" id="muteBtn" type="button" aria-label="Activar o silenciar sonido" title="Sonido">♫</button>
+          <button class="icon-button" id="restartBtn" type="button" aria-label="Reiniciar partida" title="Reiniciar (R)">↻</button>
+          <button class="icon-button" id="pauseBtn" type="button" aria-label="Pausar o reanudar" title="Pausa (P)">Ⅱ</button>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="game" width="960" height="540" aria-label="Juego de plataformas con Messi, un rival llamado Chiqui Tapia y una copa especial, en calles argentinas.">Tu navegador no soporta Canvas. Abrí este archivo con un navegador actualizado.</canvas>
+        <div class="overlay" id="overlay">
+          <div class="overlay-panel" role="dialog" aria-modal="true" aria-labelledby="overlayTitle">
+            <div class="overlay-kicker" id="overlayKicker">Buenos Aires te espera</div>
+            <h2 class="overlay-title" id="overlayTitle">¿Listo para el <em>partido?</em></h2>
+            <p class="overlay-description" id="overlayDescription">Explorá las calles, agarrá la Copa para activar tu poder y saltá sobre el jefe final para vencerlo. ¡Cuidado con los pozos y las pelotas traviesas!</p>
+            <button class="primary" id="startBtn" type="button">▶ ¡JUGAR AHORA!</button>
+            <div class="overlay-tip" id="overlayTip">Mover: ← → o A D · Saltar: espacio / W / ↑</div>
+          </div>
+        </div>
+      </div>
+      <div class="touch-controls" aria-label="Controles para pantallas táctiles">
+        <div class="touch-group">
+          <button class="touch-btn" type="button" id="leftTouch" aria-label="Mover a la izquierda">◀</button>
+          <button class="touch-btn" type="button" id="rightTouch" aria-label="Mover a la derecha">▶</button>
+        </div>
+        <button class="touch-btn jump" type="button" id="jumpTouch" aria-label="Saltar">▲ SALTAR</button>
+      </div>
+      <div class="hint-strip"><span><span class="keys">← → / A D</span> moverse &nbsp; · &nbsp; <span class="keys">ESPACIO / W / ↑</span> saltar &nbsp; · &nbsp; <span class="keys">P</span> pausar</span><span>🏆 COPA = PODER ESPECIAL</span></div>
+    </div>
+    <div class="infos">
+      <div class="info"><div class="icon">🏁</div><strong>Una misión, un nivel</strong><p>Llegá al arco del final del barrio y vencé al jefe saltando sobre él dos veces.</p></div>
+      <div class="info"><div class="icon">🏆</div><strong>Poder de campeón</strong><p>La Copa dorada te da protección, más velocidad y doble salto durante 13 segundos.</p></div>
+      <div class="info"><div class="icon">🎮</div><strong>Abierto para aprender</strong><p>Todo el código vive en un único HTML. Se puede editar y publicar gratis en GitHub Pages.</p></div>
+    </div>
+    <p class="footer">Proyecto original de demostración, humorístico y educativo. Representaciones caricaturescas ficticias; no afiliado ni avalado por Lionel Messi, Claudio «Chiqui» Tapia, la AFA o Nintendo. No se utilizan imágenes ni recursos de sus videojuegos.</p>
+  </main>
+<script>
+(()=>{'use strict';
+  const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+  const overlay=document.getElementById('overlay'),overlayTitle=document.getElementById('overlayTitle'),overlayKicker=document.getElementById('overlayKicker'),overlayDescription=document.getElementById('overlayDescription'),overlayTip=document.getElementById('overlayTip'),startBtn=document.getElementById('startBtn');
+  const muteBtn=document.getElementById('muteBtn'),pauseBtn=document.getElementById('pauseBtn');
+  const H=540, WORLD=6300, FLOOR=430, G=1650, JUMP=-675;
+  let W=960, ratio=1, cameraX=0, elapsed=0, lastFrame=0, frame=0, gameState='menu', muted=false, audioCtx=null, particles=[], popupTexts=[], hero, enemies, trophies, alfajores, checkpoints, boss, elapsedGame=0, score=0, collected=0, checkpointX=80, checkpointIndex=-1, wins=0;
+  let floatMessage='', floatMessageTimer=0, jumpQueued=false;
+  const keys={left:false,right:false};
+  const ground=[[0,920],[1030,1930],[2050,2850],[2970,3960],[4080,4990],[5100,6300]];
+  const platforms=[{x:450,y:355,w:125},{x:750,y:323,w:110},{x:1090,y:354,w:132},{x:1500,y:327,w:135},{x:1850,y:344,w:105},{x:2140,y:332,w:140},{x:2480,y:294,w:110},{x:2910,y:333,w:110},{x:3250,y:345,w:128},{x:3660,y:313,w:145},{x:4020,y:333,w:120},{x:4460,y:332,w:140},{x:4900,y:330,w:110},{x:5240,y:343,w:130}];
+  const scenery=[];
+  for(let x=-100,i=0;x<WORLD+900;x+=142,i++){
+    const rnd=(Math.sin(i*91.73+5)*43758.5453)%1, r=Math.abs(rnd);
+    scenery.push({x,w:125+Math.round((i*11)%24),h:158+(i*71)%115,color:['#fac68e','#f0aaa0','#9ec9bd','#ffd586','#a4b3d3','#c0ddbd','#edbd91'][i%7],windows:2+(i%2),balcony:i%4===0,awning:i%5===1,roof:r>.72});
+  }
+  const enemyPositions=[580,1295,1845,2320,3120,3800,4520,4960];
+  const alfajorXs=[170,275,465,502,540,790,830,1100,1150,1195,1420,1550,1600,1660,2160,2220,2300,2510,2548,2600,3010,3280,3345,3710,3770,4160,4495,4555,4740,4850,5240,5300,5360,5830,5945,6040];
+  function resize(){W=window.innerWidth<=700?700:960;ratio=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.round(W*ratio);canvas.height=Math.round(H*ratio);ctx.setTransform(ratio,0,0,ratio,0,0);ctx.imageSmoothingEnabled=true;}
+  window.addEventListener('resize',resize);resize();
+  function reset(){
+    hero={x:75,y:FLOOR-49,w:33,h:49,vx:0,vy:0,onGround:true,jumps:0,dir:1,lives:3,power:0,invuln:0,airtime:0};
+    enemies=enemyPositions.map((x,i)=>({x,y:FLOOR-31,w:32,h:31,vx:(i%2?-43:49),start:x,alive:true,t:0}));
+    trophies=[{x:1580,y:274,hit:false},{x:3680,y:259,hit:false}];
+    alfajores=alfajorXs.map((x,i)=>({x,y:(i%7===2||i%7===3||i%7===4)?(i%2?300:266):(i%9===0?328:391),hit:false}));
+    checkpoints=[{x:2110,active:false},{x:4140,active:false}];
+    boss={x:5540,y:FLOOR-72,w:55,h:72,hp:2,dir:-1,hitCooldown:0,speed:75,alive:true,t:0};
+    cameraX=0;elapsedGame=0;score=0;collected=0;checkpointX=75;checkpointIndex=-1;particles=[];popupTexts=[];floatMessage='';floatMessageTimer=0;jumpQueued=false;
+  }
+  reset();
+  function sound(freq=440,duration=.09,type='sine',volume=.075){
+    if(muted)return;
+    try{
+      audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+      if(audioCtx.state==='suspended')audioCtx.resume();
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain(),t=audioCtx.currentTime;
+      o.type=type;o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(Math.max(80,freq*.63),t+duration);
+      g.gain.setValueAtTime(volume,t);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+      o.connect(g);g.connect(audioCtx.destination);o.start(t);o.stop(t+duration);
+    }catch(_){/* Sound is optional. */}
+  }
+  function tune(notes){notes.forEach((n,i)=>setTimeout(()=>sound(n,.15,'triangle',.06),i*110));}
+  function showOverlay(mode){
+    gameState=mode;overlay.hidden=false;
+    const txt={
+      menu:['BUENOS AIRES TE ESPERA','¿Listo para el <em>partido?</em>','Explorá las calles, agarrá la Copa para activar tu poder y saltá sobre el jefe final para vencerlo. ¡Cuidado con los pozos y las pelotas traviesas!','▶ ¡JUGAR AHORA!','Mover: ← → o A D · Saltar: espacio / W / ↑'],
+      pause:['TIEMPO FUERA','¡Un <em>respiro!</em>','Tu aventura sigue acá. Volvé cuando quieras: Messi está listo para continuar.','▶ CONTINUAR','También podés presionar P'],
+      lose:['FIN DEL PARTIDO','¡Hay <em>revancha!</em>',`Juntaste ${collected} alfajores y ${score} puntos. Cada partida sirve para aprender y volver a probar.`, '↻ JUGAR DE NUEVO','Pista: con la Copa podés hacer doble salto'],
+      win:['¡GOOOOOL!','¡Sos <em>campeón!</em>',`Completaste el nivel en ${Math.floor(elapsedGame)} segundos. Reuniste ${collected} alfajores y ${score} puntos. ¿Qué nuevo personaje o escenario crearías?`,'↻ VOLVER A JUGAR','Demo completada · ¡Ahora les toca crear a tus alumnos!']
+    }[mode];
+    overlayKicker.textContent=txt[0];overlayTitle.innerHTML=txt[1];overlayDescription.textContent=txt[2];startBtn.textContent=txt[3];overlayTip.textContent=txt[4];pauseBtn.textContent=mode==='pause'?'▶':'Ⅱ';
+  }
+  function start(){
+    if(gameState==='pause'){gameState='playing';overlay.hidden=true;pauseBtn.textContent='Ⅱ';return;}
+    reset();gameState='playing';overlay.hidden=true;pauseBtn.textContent='Ⅱ';sound(530,.13);sound(780,.15);
+  }
+  startBtn.addEventListener('click',start);
+  document.getElementById('restartBtn').addEventListener('click',()=>{reset();gameState='playing';overlay.hidden=true;pauseBtn.textContent='Ⅱ';sound(660,.11)});
+  pauseBtn.addEventListener('click',()=>{if(gameState==='playing')showOverlay('pause');else if(gameState==='pause')start();});
+  muteBtn.addEventListener('click',()=>{muted=!muted;muteBtn.textContent=muted?'♪̸':'♫';muteBtn.setAttribute('aria-label',muted?'Activar sonido':'Silenciar sonido');if(!muted)sound(740,.12)});
+  window.addEventListener('keydown',(e)=>{
+    if(['ArrowLeft','ArrowRight','ArrowUp','Space','KeyA','KeyD','KeyW'].includes(e.code))e.preventDefault();
+    if(['ArrowLeft','KeyA'].includes(e.code))keys.left=true;
+    if(['ArrowRight','KeyD'].includes(e.code))keys.right=true;
+    if(['ArrowUp','Space','KeyW'].includes(e.code)&&!e.repeat){jumpQueued=true;if(gameState==='menu'||gameState==='lose'||gameState==='win')start();}
+    if(e.code==='KeyP'&&!e.repeat){if(gameState==='playing')showOverlay('pause');else if(gameState==='pause')start();}
+    if(e.code==='KeyR'&&!e.repeat){reset();gameState='playing';overlay.hidden=true;}
+    if(e.code==='Enter'&&!e.repeat&&gameState!=='playing'){start();}
+  });
+  window.addEventListener('keyup',(e)=>{if(['ArrowLeft','KeyA'].includes(e.code))keys.left=false;if(['ArrowRight','KeyD'].includes(e.code))keys.right=false;});
+  window.addEventListener('blur',()=>{keys.left=false;keys.right=false;if(gameState==='playing')showOverlay('pause')});
+  function wireTouch(id,prop){
+    const b=document.getElementById(id);let held=new Set();
+    b.addEventListener('pointerdown',(e)=>{e.preventDefault();b.setPointerCapture?.(e.pointerId);held.add(e.pointerId);b.classList.add('active');if(prop==='jump'){jumpQueued=true;if(gameState!=='playing'&&gameState!=='pause')start();}else keys[prop]=true;});
+    const release=(e)=>{held.delete(e.pointerId);if(!held.size){b.classList.remove('active');if(prop!=='jump')keys[prop]=false;}};
+    b.addEventListener('pointerup',release);b.addEventListener('pointercancel',release);b.addEventListener('lostpointercapture',release);
+  }
+  wireTouch('leftTouch','left');wireTouch('rightTouch','right');wireTouch('jumpTouch','jump');
+  // Geometry
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const hit=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+  function rrect(x,y,w,h,r,color){if(w<=0||h<=0)return;ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+  function strokeRrect(x,y,w,h,r,color,width=2){ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.stroke()}
+  function poly(points,color){ctx.fillStyle=color;ctx.beginPath();ctx.moveTo(points[0][0],points[0][1]);for(let i=1;i<points.length;i++)ctx.lineTo(points[i][0],points[i][1]);ctx.closePath();ctx.fill()}
+  function circle(x,y,r,c){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=c;ctx.fill()}
+  function text(s,x,y,size=16,color='#fff',weight=800,align='left'){ctx.font=`${weight} ${size}px system-ui,sans-serif`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(s,x,y);ctx.textAlign='left'}
+  function popup(s,x,y,c='#fff'){popupTexts.push({s,x,y,life:1,color:c})}
+  function burst(x,y,color,n=12){for(let i=0;i<n;i++){const a=i/n*Math.PI*2;particles.push({x,y,vx:Math.cos(a)*(65+(i%3)*44),vy:Math.sin(a)*(55+(i%4)*22)-45,life:.4+(i%4)*.16,color,r:2+(i%3)});}}
+  function notify(s){floatMessage=s;floatMessageTimer=2.6}
+  function loseLife(force=false){
+    if((hero.invuln>0&&!force)||gameState!=='playing')return;
+    hero.lives--;hero.power=0;sound(155,.35,'sawtooth',.1);burst(hero.x+15,hero.y+20,'#ff747e',15);
+    if(hero.lives<=0){showOverlay('lose');return;}
+    hero.x=checkpointX;hero.y=FLOOR-49;hero.vx=0;hero.vy=0;hero.jumps=0;hero.onGround=true;hero.invuln=2.4;notify('¡Vamos, Leo! Quedan '+hero.lives+' vidas');
+  }
+  function update(dt){
+    elapsed+=dt;frame++;if(gameState!=='playing')return;elapsedGame+=dt;
+    hero.invuln=Math.max(0,hero.invuln-dt);hero.power=Math.max(0,hero.power-dt);
+    const speed=hero.power>0?345:265;
+    let input=(keys.right?1:0)-(keys.left?1:0);
+    if(input){hero.vx=input*speed;hero.dir=input;}else hero.vx*=Math.pow(.00008,dt);
+    if(jumpQueued){
+      if(hero.onGround||hero.jumps<(hero.power>0?2:1)){
+        hero.vy=JUMP*(hero.power>0?1.06:1);hero.onGround=false;hero.jumps++;sound(hero.jumps>1?780:470,.15,'triangle');burst(hero.x+hero.w/2,hero.y+hero.h,'#c9f3ff',6);
+      }
+      jumpQueued=false;
+    }
+    const oldY=hero.y;
+    hero.vy=clamp(hero.vy+G*dt,-900,1200);
+    hero.x=clamp(hero.x+hero.vx*dt,0,WORLD-hero.w);
+    hero.y+=hero.vy*dt;
+    hero.onGround=false;
+    const oldFoot=oldY+hero.h,newFoot=hero.y+hero.h;
+    if(hero.vy>=0){
+      const candidates=[];
+      for(const p of ground){if(hero.x+hero.w>p[0]+4&&hero.x<p[1]-3)candidates.push({x:p[0],w:p[1]-p[0],y:FLOOR});}
+      for(const p of platforms)candidates.push(p);
+      for(const p of candidates){
+        if(oldFoot<=p.y+11&&newFoot>=p.y&&hero.x+hero.w>p.x+6&&hero.x<p.x+p.w-6){
+          hero.y=p.y-hero.h;hero.vy=0;hero.onGround=true;hero.jumps=0;break;
+        }
+      }
+    }
+    if(hero.y>H+85){loseLife(true);return;}
+    // Collect the street snacks.
+    for(const a of alfajores){if(a.hit)continue;const obj={x:a.x-12,y:a.y-12,w:24,h:24};if(hit(hero,obj)){a.hit=true;collected++;score+=100;burst(a.x,a.y,'#fff1ad',7);sound(890,.08,'sine',.045);popup('+100',a.x,a.y-21,'#fff5a0');}}
+    // World Cup = timed protection, faster movement and an extra jump.
+    for(const t of trophies){if(t.hit)continue;if(hit(hero,{x:t.x-21,y:t.y-28,w:42,h:55})){t.hit=true;hero.power=13;score+=500;hero.invuln=.3;burst(t.x,t.y,'#ffe277',22);tune([523,659,784,1046]);notify('🏆 ¡MODO CAMPEÓN! DOBLE SALTO');}}
+    for(let i=0;i<checkpoints.length;i++){const cp=checkpoints[i];if(!cp.active&&hero.x>=cp.x){cp.active=true;checkpointX=cp.x;checkpointIndex=i;score+=200;burst(cp.x,FLOOR-80,'#7adfff',15);sound(720,.16,'triangle');notify('✓ ¡PUNTO DE CONTROL!');}}
+    for(const e of enemies){
+      if(!e.alive)continue;e.t+=dt;e.x+=e.vx*dt;
+      if(Math.abs(e.x-e.start)>75){e.vx=-e.vx;e.x=clamp(e.x,e.start-75,e.start+75);}
+      if(hit(hero,e)){
+        const stomp=oldFoot<=e.y+16&&hero.vy>110;
+        if(stomp||hero.power>0){e.alive=false;hero.vy=-350;hero.jumps=0;score+=200;burst(e.x+15,e.y+15,'#ffdb7d',14);sound(320,.15,'square',.07);popup('+200',e.x,e.y-16,'#fff49d');}
+        else loseLife();
+      }
+    }
+    if(boss.alive){
+      boss.t+=dt;boss.hitCooldown=Math.max(0,boss.hitCooldown-dt);
+      boss.x+=boss.dir*boss.speed*dt;
+      if(boss.x<5400){boss.x=5400;boss.dir=1;}if(boss.x>5740){boss.x=5740;boss.dir=-1;}
+      if(hit(hero,boss)&&boss.hitCooldown<=0){
+        const stomp=oldFoot<=boss.y+25&&hero.vy>100;
+        if(stomp){
+          boss.hp--;boss.hitCooldown=1.3;hero.vy=-460;hero.jumps=0;score+=750;burst(boss.x+27,boss.y+18,'#ffdd78',24);sound(180,.19,'sawtooth',.09);
+          if(boss.hp<=0){boss.alive=false;score+=1000;tune([392,494,587,784,1046]);notify('¡RIVAL SUPERADO! ¡AL ARCO!');}
+          else notify('¡BUEN SALTO! FALTA UNO');
+        }else if(hero.power>0){hero.vx=-hero.dir*245;hero.vy=-265;hero.invuln=.4;notify('🏆 ¡LA COPA TE PROTEGIÓ!');}
+        else loseLife();
+      }
+    }
+    if(hero.x>6080){if(boss.alive){hero.x=6080;hero.vx=0;if(floatMessageTimer<.5)notify('¡VENCÉ AL CHIQUI PARA TERMINAR!');}else{wins++;showOverlay('win');tune([523,659,784,1046,1175,1568]);burst(hero.x,FLOOR-55,'#ffe37d',55);}}
+    for(const p of particles){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy+=360*dt;p.life-=dt;}
+    particles=particles.filter(p=>p.life>0);
+    for(const p of popupTexts){p.y-=35*dt;p.life-=dt;}
+    popupTexts=popupTexts.filter(p=>p.life>0);
+    floatMessageTimer=Math.max(0,floatMessageTimer-dt);
+    cameraX=clamp(hero.x-W*.36,0,WORLD-W);
+  }
+  function drawCloud(x,y,s=1){ctx.save();ctx.translate(x,y);ctx.scale(s,s);circle(0,5,21,'#fff9');circle(23,-6,28,'#fff9');circle(49,6,18,'#fff9');rrect(-2,0,52,21,10,'#fff9');ctx.restore();}
+  function drawBackground(){
+    const sky=ctx.createLinearGradient(0,0,0,H);sky.addColorStop(0,'#64c8f5');sky.addColorStop(.64,'#b6eaff');sky.addColorStop(1,'#dff9ed');ctx.fillStyle=sky;ctx.fillRect(0,0,W,H);
+    circle(W*.83,91,42,'#ffec9d');circle(W*.83,91,56,'#fff2b540');
+    for(let i=0;i<23;i++){let x=((i*285+75-cameraX*.16)%(W+500)+W+500)%(W+500)-120;drawCloud(x,64+(i%4)*38,.55+(i%3)*.18);}
+    // Two layers of distant city give the street a parallax effect.
+    ctx.save();ctx.translate(-cameraX*.27,0);for(let x=-300;x<WORLD+1000;x+=94){let h=95+(Math.floor(x/94)*67%105+105)%105;rrect(x,290-h,78,h+170,2,'#a7d1dc');for(let fy=302-h;fy<315;fy+=23)for(let wx=x+13;wx<x+71;wx+=26)rrect(wx,fy,12,12,1,'#cfedf0');}ctx.restore();
+    ctx.save();ctx.translate(-cameraX*.54,0);
+    for(const b of scenery){if(b.x-cameraX*.54<-450||b.x-cameraX*.54>W+470)continue;
+      const y=FLOOR-b.h;
+      rrect(b.x,y,b.w,b.h+12,3,b.color);rrect(b.x-4,y-9,b.w+8,12,2,'#566d85');
+      for(let fy=y+22;fy<FLOOR-23;fy+=41){for(let fx=b.x+13;fx<b.x+b.w-11;fx+=36){rrect(fx,fy,21,26,2,'#466e94');rrect(fx+2,fy+2,17,21,1,'#def4f5');rrect(fx+10,fy+2,2,21,0,'#6685a2');if(b.balcony&&fy>y+40)rrect(fx-5,fy+25,31,5,1,'#526782');}}
+      if(b.awning){rrect(b.x+4,FLOOR-81,b.w-8,9,1,'#fdf5e6');for(let q=0;q<5;q++)rrect(b.x+8+q*(b.w-16)/5,FLOOR-81,(b.w-16)/10,9,0,'#65bde3');}
+      if(b.roof)poly([[b.x,y],[b.x+b.w/2,y-26],[b.x+b.w,y]],'#57728b');
+    }
+    // A stylized Obelisco visible in the central part of the route.
+    const ox=3200,oy=116;
+    poly([[ox+45,oy],[ox+75,oy],[ox+100,FLOOR],[ox+21,FLOOR]],'#f4eee5');poly([[ox+45,oy],[ox+60,oy-55],[ox+75,oy]],'#fbf5ea');rrect(ox+37,oy+90,45,6,1,'#d6cbd0');rrect(ox+30,FLOOR-17,65,15,1,'#ece5db');
+    text('9 DE JULIO',ox-22,FLOOR-38,12,'#637b85');
+    ctx.restore();
+    // Small balconies and festive strings in the near distance.
+    ctx.save();ctx.translate(-cameraX*.72,0);for(let x=320;x<WORLD;x+=1100){ctx.strokeStyle='#dbeaf3';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x,FLOOR-180);ctx.quadraticCurveTo(x+105,FLOOR-110,x+205,FLOOR-185);ctx.stroke();for(let i=0;i<7;i++){let fx=x+20+i*27,fy=FLOOR-180+Math.sin((i+1)/8*Math.PI)*40;poly([[fx,fy],[fx+13,fy+1],[fx+7,fy+15]],['#74cfff','#fff','#74cfff'][i%3]);}}ctx.restore();
+  }
+  function drawRoad(){
+    ctx.fillStyle='#555b69';ctx.fillRect(0,FLOOR+24,W,H-FLOOR-24);ctx.fillStyle='#40495a';ctx.fillRect(0,FLOOR+63,W,50);
+    for(const seg of ground){let x=seg[0]-cameraX,w=seg[1]-seg[0];if(x>W||x+w<0)continue;
+      rrect(x,FLOOR,w,25,0,'#d6d3c7');rrect(x,FLOOR,w,7,0,'#f4e9cb');rrect(x,FLOOR+20,w,6,0,'#9b9a9e');
+      ctx.strokeStyle='#a7b1ba';ctx.lineWidth=1;for(let q=Math.ceil(seg[0]/58)*58;q<seg[1];q+=58){ctx.beginPath();ctx.moveTo(q-cameraX,FLOOR+7);ctx.lineTo(q-cameraX,FLOOR+24);ctx.stroke();}
+    }
+    const x0=Math.floor(cameraX/90)*90;for(let x=x0;x<cameraX+W+100;x+=90){rrect(x-cameraX,FLOOR+78,52,5,2,'#f5ebb7');}
+    for(const seg of ground){rrect(seg[0]-cameraX,FLOOR+24,seg[1]-seg[0],3,0,'#747a7c');}
+    // Bright hazard stripes mark each gap.
+    for(let i=0;i<ground.length-1;i++){let left=ground[i][1]-cameraX-12,right=ground[i+1][0]-cameraX;rrect(left,FLOOR-3,12,9,1,'#e9b249');rrect(right,FLOOR-3,12,9,1,'#e9b249');}
+    // Lamp posts, avenue signs, and bus stops.
+    for(const x of [360,1160,2150,3000,4140,5010,5870]){const sx=x-cameraX;if(sx<-40||sx>W+40)continue;ctx.fillStyle='#53748c';ctx.fillRect(sx,FLOOR-142,5,143);rrect(sx-3,FLOOR-145,23,8,4,'#35536a');circle(sx+18,FLOOR-141,10,'#ffeb9f');}
+    for(const [x,name] of [[115,'CALLE 10'],[1920,'AV. ARGENTINA'],[3930,'RUMBO AL GOL'],[5570,'EL ÚLTIMO RETO']]){const sx=x-cameraX;if(sx<-145||sx>W+145)continue;rrect(sx,FLOOR-146,4,148,1,'#49667c');rrect(sx-7,FLOOR-173,142,30,6,'#14546e');strokeRrect(sx-7,FLOOR-173,142,30,6,'#d1f5f3',2);text(name,sx+64,FLOOR-158,12,'#fff',850,'center');}
+  }
+  function drawPlatforms(){for(const p of platforms){let sx=p.x-cameraX;if(sx+p.w<0||sx>W)continue;rrect(sx,p.y,p.w,17,4,'#9c5e4b');rrect(sx,p.y,p.w,7,3,'#f1b381');for(let x=9;x<p.w;x+=27)rrect(sx+x,p.y+9,17,5,1,'#bd7a5b');}}
+  function drawAlfajor(x,y){ctx.save();ctx.translate(x,y);circle(0,1,12,'#9a5432');circle(0,-3,11,'#cf915c');circle(0,4,10,'#fff0cb');circle(0,-4,10,'#c58653');circle(-3,-7,3,'#e9ba7e');ctx.restore();}
+  function drawTrophy(x,y){ctx.save();ctx.translate(x,y+Math.sin(elapsed*3.5)*4);circle(0,-5,34,'#ffe27322');circle(0,-5,24,'#fff4ba33');
+    ctx.strokeStyle='#f5b62b';ctx.lineWidth=6;ctx.beginPath();ctx.arc(-16,-10,10,.38*Math.PI,1.52*Math.PI);ctx.stroke();ctx.beginPath();ctx.arc(16,-10,10,1.48*Math.PI,.65*Math.PI,true);ctx.stroke();
+    poly([[-16,-25],[16,-25],[12,-4],[7,5],[-7,5],[-12,-4]],'#f2b53d');rrect(-14,-24,28,7,3,'#ffeb9a');rrect(-5,4,10,12,2,'#d6a43b');rrect(-15,15,30,6,2,'#c78c36');circle(-5,-15,4,'#ffeaaa');
+    text('★',0,-10,15,'#fff3a6',900,'center');ctx.restore();}
+  function drawCheckpoint(cp){const x=cp.x-cameraX;if(x<-35||x>W+35)return;rrect(x,FLOOR-103,5,104,1,'#656e87');rrect(x+5,FLOOR-105,43,33,3,'#f4fbff');rrect(x+5,FLOOR-105,43,11,0,'#8ad7fc');rrect(x+5,FLOOR-83,43,11,0,'#8ad7fc');text('☀',x+27,FLOOR-89,12,'#dfa730',800,'center');if(cp.active){circle(x+4,FLOOR-108,8,'#ffeb8b');text('✓',x+4,FLOOR-109,11,'#174157',900,'center');}}
+  function drawEnemy(e){const x=Math.round(e.x-cameraX),y=Math.round(e.y+Math.sin(e.t*7)*2);if(x<-50||x>W+50)return;
+    circle(x+16,y+17,15,'#2d455d');circle(x+16,y+14,15,'#f7ead1');for(let k=0;k<5;k++){const a=k*1.256+e.t*.9;circle(x+16+Math.cos(a)*10,y+14+Math.sin(a)*10,4,'#303b54')}poly([[x+11,y+12],[x+16,y+8],[x+21,y+12],[x+20,y+19],[x+13,y+19]],'#303b54');circle(x+10,y+20,2,'#1d273a');circle(x+22,y+20,2,'#1d273a');}
+  function drawBoss(b){if(!b.alive)return;let x=Math.round(b.x-cameraX),y=Math.round(b.y);if(x<-100||x>W+100)return;
+    ctx.save();if(b.hitCooldown>0&&Math.floor(elapsed*14)%2===0)ctx.globalAlpha=.48;
+    const cx=x+27,cy=y+26;
+    // Fictional, humorous representation of the named rival.
+    rrect(x+5,y+38,44,33,10,'#25364b');rrect(x+24,y+39,7,27,1,'#92d1f2');poly([[x+25,y+42],[x+31,y+42],[x+28,y+57]],'#e4ae64');
+    rrect(x+4,y+60,23,11,4,'#172737');rrect(x+30,y+60,23,11,4,'#172737');
+    rrect(x-3,y+40,12,22,5,'#dda77e');rrect(x+46,y+40,12,22,5,'#dda77e');
+    circle(cx,cy,25,'#d59e77');circle(cx+1,cy-18,16,'#e5b58e');
+    circle(cx-10,cy+1,3,'#26384c');circle(cx+11,cy+1,3,'#26384c');rrect(cx-15,cy-10,11,4,2,'#564737');rrect(cx+5,cy-10,11,4,2,'#564737');
+    ctx.strokeStyle='#774b3b';ctx.lineWidth=2;ctx.beginPath();ctx.arc(cx,cy+7,9,.18,Math.PI-.18);ctx.stroke();
+    circle(cx+11,cy-19,4,'#ffffff20');ctx.restore();
+    rrect(cx-36,y-30,73,17,6,'#1a344bdb');text('CHIQUI',cx,y-22,12,'#fff',1000,'center');
+    for(let h=0;h<2;h++)circle(cx-9+h*18,y-39,6,h<b.hp?'#ff817e':'#344b5d');
+  }
+  function drawMessi(p){let x=Math.round(p.x-cameraX),y=Math.round(p.y);if(p.invuln>0&&Math.floor(elapsed*15)%2===0)return;
+    ctx.save();if(p.power>0){circle(x+16,y+25,32,'#ffef9861');ctx.strokeStyle='#ffda63';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(x+16,y+25,24,36,0,0,Math.PI*2);ctx.stroke();for(let i=0;i<3;i++){let a=elapsed*2.8+i*2.09;text('✦',x+16+Math.sin(a)*30,y+25+Math.cos(a)*29,14,'#fff2a9',800,'center');}}
+    ctx.translate(x+16,y);ctx.scale(p.dir,1);ctx.translate(-16,0);
+    let s=p.onGround?Math.sin(elapsed*16)*4:0;
+    // Shorts, socks, shoes.
+    rrect(4,32,25,12,3,'#182f65');rrect(6,42,8,5,1,'#f8ffff');rrect(22,42,8,5,1,'#f8ffff');
+    rrect(5,44+s*.25,12,5,2,'#edeeeb');rrect(20,44-s*.25,12,5,2,'#edeeeb');
+    rrect(1,47+s*.25,16,5,3,'#dfb83d');rrect(21,47-s*.25,15,5,3,'#dfb83d');
+    rrect(0,19,6,18,3,'#ebbc90');rrect(29,19,6,18,3,'#ebbc90');
+    // Iconic stripes but original simple sprite.
+    rrect(4,17,26,19,4,'#f5fbff');rrect(9,18,6,17,1,'#86cdec');rrect(21,18,6,17,1,'#86cdec');
+    text('10',17,27,11,'#182f65',1000,'center');
+    rrect(9,12,16,8,3,'#ecc39d');
+    circle(17,9,13,'#e2a77a');
+    circle(17,4,12,'#302a28');rrect(6,4,22,10,4,'#e2a77a');
+    poly([[5,7],[7,-1],[15,-4],[26,0],[30,9],[25,5],[19,0],[10,4]],'#2f2928');
+    rrect(7,14,17,7,4,'#4c302a');circle(15,13,6,'#e2a77a');rrect(10,16,15,3,2,'#48312a');
+    circle(11,10,1.4,'#21242d');circle(22,10,1.4,'#21242d');
+    ctx.restore();}
+  function drawGoal(){let x=6112-cameraX;if(x<-150||x>W+150)return;
+    ctx.strokeStyle='#eaf6ff';ctx.lineWidth=7;ctx.strokeRect(x,FLOOR-140,124,140);ctx.lineWidth=1.3;ctx.strokeStyle='#d5eff8a8';for(let k=0;k<7;k++){ctx.beginPath();ctx.moveTo(x+k*20,FLOOR-139);ctx.lineTo(x+k*20,FLOOR);ctx.stroke()}for(let k=0;k<8;k++){ctx.beginPath();ctx.moveTo(x,FLOOR-140+k*20);ctx.lineTo(x+124,FLOOR-140+k*20);ctx.stroke()}
+    rrect(x-17,FLOOR-188,158,35,8,'#21556d');rrect(x-12,FLOOR-185,148,28,6,'#ffe398');text('¡META!',x+62,FLOOR-171,21,'#19465c',1000,'center');
+    if(boss.alive){ctx.fillStyle='#33475692';ctx.fillRect(x,FLOOR-135,120,132);text('🔒',x+60,FLOOR-65,34,'#fff',800,'center');}
+  }
+  function drawForeground(){
+    for(const a of alfajores){if(a.hit)continue;const x=a.x-cameraX;if(x<-30||x>W+30)continue;drawAlfajor(x,a.y+Math.sin(elapsed*3+a.x*.02)*3);}
+    for(const t of trophies){if(!t.hit&&t.x-cameraX>-60&&t.x-cameraX<W+60)drawTrophy(t.x-cameraX,t.y);}
+    for(const cp of checkpoints)drawCheckpoint(cp);
+    drawGoal();for(const e of enemies)drawEnemy(e);drawBoss(boss);drawMessi(hero);
+    for(const p of particles){let x=p.x-cameraX;if(x<-25||x>W+25)continue;ctx.globalAlpha=clamp(p.life*2,0,1);circle(x,p.y,p.r,p.color);ctx.globalAlpha=1;}
+    for(const t of popupTexts){ctx.globalAlpha=clamp(t.life,0,1);text(t.s,t.x-cameraX,t.y,17,t.color,1000,'center');ctx.globalAlpha=1;}
+  }
+  function drawHUD(){
+    rrect(14,14,W<800?229:278,48,13,'#102f4bd9');strokeRrect(14,14,W<800?229:278,48,13,'#b4ebff4b',1);
+    text('❤',29,38,25,'#ff8a93',800);text(String(hero.lives),57,37,18,'#fff',950);
+    text('◉',W<800?108:129,37,24,'#ffdd81',950);text(String(collected).padStart(2,'0'),W<800?139:160,38,17,'#fff',900);
+    if(W>=800){text('★',222,38,21,'#fbe388',900);text(String(score),247,38,15,'#fff',900);}
+    rrect(W-168,14,154,48,13,'#102f4bd9');strokeRrect(W-168,14,154,48,13,'#b4ebff4b',1);text('NIVEL 1/1',W-91,38,16,'#ecf7ff',950,'center');
+    if(hero.power>0){rrect(14,70,174,26,8,'#122a42dc');rrect(18,74,166*hero.power/13,18,5,'#ffda69');text('🏆 CAMPEÓN',100,83,12,'#132841',950,'center');}
+    if(floatMessageTimer>0){const width=Math.min(W-32,Math.max(280,floatMessage.length*11+26));rrect((W-width)/2,107,width,43,11,'#0d2c45e9');strokeRrect((W-width)/2,107,width,43,11,'#89d7f4',2);text(floatMessage,W/2,128,Math.min(17,W/floatMessage.length*1.42),'#fff5be',900,'center');}
+    const progress=clamp(hero.x/6080,0,1);rrect(W/2-97,H-21,194,9,5,'#0f314b9c');rrect(W/2-94,H-18,188*progress,3,2,'#ffe68a');circle(W/2-94+188*progress,H-17,5,'#ffe293');
+  }
+  function render(){ctx.setTransform(ratio,0,0,ratio,0,0);ctx.clearRect(0,0,W,H);drawBackground();drawRoad();drawPlatforms();drawForeground();drawHUD();}
+  function loop(now){const dt=Math.min((now-lastFrame)/1000||.016,.033);lastFrame=now;update(dt);render();requestAnimationFrame(loop);}
+  showOverlay('menu');requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
